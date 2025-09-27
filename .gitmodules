@@ -1,0 +1,3 @@
+[submodule "third_party/mathcpp"]
+	path = third_party/mathcpp
+	url = https://github.com/DavidIkov/mathcpp.git
