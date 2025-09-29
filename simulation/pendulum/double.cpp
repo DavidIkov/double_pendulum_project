@@ -13,6 +13,7 @@ DoublePendulum::DoublePendulum(Pendulum pendulum0, Pendulum pendulum1)
               float m1 = pends[0].mass_, m2 = pends[1].mass_;
               float g = 9.80665f;  // TODO
               float o1 = state[0], o2 = state[1], v1 = state[2], v2 = state[3];
+
               float a1 = l1 * l1 * (m1 + m2),
                     b1 = m2 * l1 * l2 * std::cos(o1 - o2),
                     c1 = m2 * v2 * v2 * l1 * l2 * std::sin(o1 - o2) +
