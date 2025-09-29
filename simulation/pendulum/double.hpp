@@ -1,5 +1,6 @@
 
 #pragma once
+#include "mathcpp/rk4.hpp"
 #include "mathcpp/vector.hpp"
 
 struct Pendulum {
@@ -15,6 +16,9 @@ public:
 
     float GetMaxRadius() const;
 
+    void Step(float dt);
+
 private:
     Pendulum pendulum0_, pendulum1_;
+    mathcpp::RK4<float, mathcpp::Vector4F, Pendulum*> rk_;
 };
