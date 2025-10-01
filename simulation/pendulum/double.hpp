@@ -1,24 +1,26 @@
 
 #pragma once
+#include <array>
+
 #include "mathcpp/rk4.hpp"
 #include "mathcpp/vector.hpp"
+#include "pendulum.hpp"
+#include "simulation.hpp"
 
-struct Pendulum {
-    float angle_ = 0.f, length_ = 1.f, mass_ = 1.f;
-};
-
-class DoublePendulum {
+template <>
+class Simulation<2> {
 public:
-    DoublePendulum(Pendulum pendulum0, Pendulum pendulum1);
+    Simulation(std::initializer_list<Pendulum> pendulums);
 
-    mathcpp::Vector2F GetPendulum0Pos() const;
-    mathcpp::Vector2F GetPendulum1Pos() const;
+    std::array<mathcpp::Vector2F, 2> GetPendulumsPositions() const;
+    std::array<Pendulum, 2> const& GetPendulums() const;
+    Pendulum const& GetPendulum(size_t ind) const;
 
     float GetMaxRadius() const;
 
     void Step(float dt);
 
 private:
-    Pendulum pendulum0_, pendulum1_;
-    mathcpp::RK4<float, mathcpp::Vector4F, Pendulum*> rk_;
+    std::array<Pendulum, 2> pendulums_;
+    mathcpp::RK4<float, mathcpp::Vector4F, std::array<Pendulum, 2>&> rk_;
 };
