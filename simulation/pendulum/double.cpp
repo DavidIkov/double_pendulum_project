@@ -4,7 +4,7 @@
 
 static mathcpp::Vector4F CalculateRK4(float const& t,
                                       const mathcpp::Vector4F& state,
-                                      std::array<Pendulum, 2>& pendulums) {
+                                      std::array<Pendulum, 2> const& pendulums) {
     float l1 = pendulums[0].length_, l2 = pendulums[1].length_;
     float m1 = pendulums[0].mass_, m2 = pendulums[1].mass_;
     float g = 9.80665f;  // TODO

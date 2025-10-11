@@ -22,5 +22,5 @@ public:
 
 private:
     std::array<Pendulum, 2> pendulums_;
-    mathcpp::RK4<float, mathcpp::Vector4F, std::array<Pendulum, 2>&> rk_;
+    mathcpp::RK4<float, mathcpp::Vector4F, std::array<Pendulum, 2> const&> rk_;
 };
