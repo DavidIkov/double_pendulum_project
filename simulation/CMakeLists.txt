@@ -7,14 +7,12 @@ add_library(
   pendulum/double.cpp pendulum/single.hpp pendulum/single.cpp)
 target_link_libraries(pendulum PUBLIC mathcpp)
 
-add_library(renderer STATIC visualizer/renderer/renderer.hpp
-                            visualizer/renderer/renderer.cpp)
-target_link_libraries(renderer PUBLIC mathcpp)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
 add_executable(visualizer_single visualizer/single.cpp)
-target_link_libraries(visualizer_single PRIVATE pendulum renderer)
+target_link_libraries(visualizer_single PRIVATE pendulum Qt6::Core Qt6::Widgets)
 target_include_directories(visualizer_single PRIVATE ${PROJECT_SOURCE_DIR})
 
 add_executable(visualizer_double visualizer/double.cpp)
-target_link_libraries(visualizer_double PRIVATE pendulum renderer)
+target_link_libraries(visualizer_double PRIVATE pendulum Qt6::Core Qt6::Widgets)
 target_include_directories(visualizer_double PRIVATE ${PROJECT_SOURCE_DIR})

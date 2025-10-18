@@ -10,17 +10,26 @@
 template <>
 class Simulation<2> {
 public:
-    Simulation(std::initializer_list<Pendulum> pendulums);
+    Simulation(std::initializer_list<Pendulum> pendulums,
+               float gravity = 9.80665f);
 
-    std::array<mathcpp::Vector2F, 2> GetPendulumsPositions() const;
+    mathcpp::Vector2F GetPendulumPosition(size_t ind) const;
     std::array<Pendulum, 2> const& GetPendulums() const;
     Pendulum const& GetPendulum(size_t ind) const;
 
     float GetMaxRadius() const;
 
-    void Step(float dt);
+    void Step(float dt, mathcpp::Vector4F platform_acceleration = 0.f);
 
 private:
+    static mathcpp::Vector4F CalculateRK4(
+        float const& t, const mathcpp::Vector4F& state,
+        Simulation<2> const& simulation,
+        mathcpp::Vector4F const& platform_state);
+
     std::array<Pendulum, 2> pendulums_;
-    mathcpp::RK4<float, mathcpp::Vector4F, std::array<Pendulum, 2> const&> rk_;
+    float gravity_;
+    mathcpp::RK4<float, mathcpp::Vector4F, Simulation<2> const&,
+                 mathcpp::Vector4F const&>
+        rk_;
 };

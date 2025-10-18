@@ -1,44 +1,77 @@
 #include "double.hpp"
 
-#include "mathcpp/matrix.hpp"
+#include <stdexcept>
 
-static mathcpp::Vector4F CalculateRK4(float const& t,
-                                      const mathcpp::Vector4F& state,
-                                      std::array<Pendulum, 2> const& pendulums) {
-    float l1 = pendulums[0].length_, l2 = pendulums[1].length_;
-    float m1 = pendulums[0].mass_, m2 = pendulums[1].mass_;
-    float g = 9.80665f;  // TODO
-    float o1 = state[0], o2 = state[1], v1 = state[2], v2 = state[3];
+mathcpp::Vector4F Simulation<2>::CalculateRK4(
+    float const& t, const mathcpp::Vector4F& state,
+    Simulation<2> const& simulation, mathcpp::Vector4F const& platform_state) {
+    float l0 = simulation.pendulums_[0].length_,
+          l1 = simulation.pendulums_[1].length_;
+    float m0 = simulation.pendulums_[0].mass_,
+          m1 = simulation.pendulums_[1].mass_;
+    float g = simulation.gravity_;
+    float o0 = state[0], o1 = state[1], v0 = state[2], v1 = state[3];
+    float pvx = platform_state[0], pvy = platform_state[1],
+          pax = platform_state[2], pay = platform_state[3];
 
-    float a1 = l1 * l1 * (m1 + m2), b1 = m2 * l1 * l2 * std::cos(o1 - o2),
-          c1 = m2 * v2 * v2 * l1 * l2 * std::sin(o1 - o2) +
-               l1 * g * std::sin(o1) * (m1 + m2),
-          a2 = m2 * l2 * l2, b2 = m2 * l1 * l2 * std::cos(o1 - o2),
-          c2 = -m2 * v1 * v1 * l1 * l2 * std::sin(o1 - o2) +
-               l2 * m2 * g * std::sin(o2);
-    float v2d = (b2 * c1 - c2 * a1) / (a2 * a1 - b1 * b2),
-          v1d = -(v2d * b1 + c1) / a1;
+    /*
+     *a0*x+b0*y=c0
+     *a1*x+b1*y=c1
+     *
+     * x=(c0-b0*y)/a0
+     * a1*c0-b0*a1*y+b1*a0*y=c1*a0
+     *
+     * y=(a0*c1-a1*c0)/(b1*a0-b0*a1)
+     * x=(c0-b0*y)/a0
+     */
 
-    v1d -= pendulums[0].dumping_mult_ * v1;
-    v2d -= pendulums[1].dumping_mult_ * v2;
+    float a0 = l0 * l0 * (m0 + m1), b0 = m1 * l0 * l1 * std::cos(o0 - o1),
+          c0 = l0 * v0 * (m0 + m1) * (pvy * std::cos(o0) - pvx * std::sin(o0)) -
+               m1 * l0 * l1 * v0 * v1 * std::sin(o0 - o1) -
+               g * l0 * std::sin(o0) * (m0 + m1);
+    c0 -= l0 * (m0 + m1) *
+              (pax * std::cos(o0) - pvx * v0 * std::sin(o0) +
+               pay * std::sin(o0) + pvy * v0 * std::cos(o0)) +
+          m1 * l0 * l1 * v1 * std::sin(o0 - o1) * (v1 - v0);
 
-    return {v1, v2, v1d, v2d};
+    float a1 = m1 * l0 * l1 * std::cos(o0 - o1), b1 = m1 * l1 * l1,
+          c1 = m1 * l1 * v1 * (pvy * std::cos(o1) - pvx * std::sin(o1)) +
+               m1 * l0 * l1 * v0 * v1 * std::sin(o0 - o1) -
+               m1 * g * l1 * std::sin(o1);
+
+    c1 -= m1 * l1 *
+              (pax * std::cos(o1) - pvx * v1 * std::sin(o1) +
+               pay * std::sin(o1) + pvy * v1 * std::cos(o1)) +
+          m1 * l0 * l1 * v0 * std::sin(o0 - o1) * (v1 - v0);
+
+    float v1d = (a0 * c1 - a1 * c0) / (b1 * a0 - b0 * a1);
+    float v0d = (c0 - b0 * v1d) / a0;
+
+    v0d -= simulation.pendulums_[0].dumping_mult_ * v0;
+    v1d -= simulation.pendulums_[1].dumping_mult_ * v1;
+
+    return {v0, v1, v0d, v1d};
 }
 
-Simulation<2>::Simulation(std::initializer_list<Pendulum> pendulums)
+Simulation<2>::Simulation(std::initializer_list<Pendulum> pendulums,
+                          float gravity)
     : pendulums_{pendulums.begin()[0], pendulums.begin()[1]},
+      gravity_(gravity),
       rk_(0,
           mathcpp::Vector4F{pendulums_[0].angle_, pendulums_[1].angle_, 0, 0},
-          pendulums_, &CalculateRK4) {}
+          *this, &CalculateRK4) {}
 
-std::array<mathcpp::Vector2F, 2> Simulation<2>::GetPendulumsPositions() const {
-    mathcpp::Vector2F p0 = mathcpp::Mat2D_RotBaseF.RotateVectorC<0, 1>(
-                               {0.f, -1.f}, pendulums_[0].angle_) *
-                           pendulums_[0].length_;
-    mathcpp::Vector2F p1 = p0 + mathcpp::Mat2D_RotBaseF.RotateVectorC<0, 1>(
-                                    {0.f, -1.f}, pendulums_[1].angle_) *
-                                    pendulums_[1].length_;
-    return {p0, p1};
+mathcpp::Vector2F Simulation<2>::GetPendulumPosition(size_t ind) const {
+    if (ind == 0) {
+        return {std::sin(pendulums_[0].angle_) * pendulums_[0].length_,
+                -std::cos(pendulums_[0].angle_) * pendulums_[0].length_};
+    } else if (ind == 1) {
+        return GetPendulumPosition(0) +
+               mathcpp::Vector2F{
+                   std::sin(pendulums_[1].angle_) * pendulums_[1].length_,
+                   -std::cos(pendulums_[1].angle_) * pendulums_[1].length_};
+    } else
+        throw std::runtime_error("unknown pendulum index");
 }
 
 std::array<Pendulum, 2> const& Simulation<2>::GetPendulums() const {
@@ -53,8 +86,8 @@ float Simulation<2>::GetMaxRadius() const {
     return pendulums_[0].length_ + pendulums_[1].length_;
 }
 
-void Simulation<2>::Step(float dt) {
-    mathcpp::Vector4F state = rk_.Step(dt);
+void Simulation<2>::Step(float dt, mathcpp::Vector4F platform_state) {
+    mathcpp::Vector4F state = rk_.Step(dt, platform_state);
     pendulums_[0].angle_ = state[0];
     pendulums_[1].angle_ = state[1];
 }
