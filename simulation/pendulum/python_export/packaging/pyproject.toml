@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pendulum_simulation"
+version = "0.1.0"
+
+[tool.setuptools]
+packages = ["pendulum_simulation"]
+include-package-data = true
+
+TODO this does not work rn, fix this so its possible to use pip, for installation

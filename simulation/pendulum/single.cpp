@@ -24,6 +24,15 @@ Simulation<1>::Simulation(Pendulum const& pendulum, float gravity)
       gravity_(gravity),
       rk_(0, mathcpp::Vector2F{pendulum_.angle_, 0}, *this, &CalculateRK4) {}
 
+Simulation<1>::Simulation(Simulation const& orig)
+    : pendulum_(orig.pendulum_),
+      gravity_(orig.gravity_),
+      rk_(0, mathcpp::Vector2F{pendulum_.angle_, 0}, *this, &CalculateRK4) {}
+Simulation<1>::Simulation(Simulation&& orig) noexcept
+    : pendulum_(orig.pendulum_),
+      gravity_(orig.gravity_),
+      rk_(orig.rk_.GetT(), orig.rk_.GetY(), *this, &CalculateRK4) {}
+
 mathcpp::Vector2F Simulation<1>::GetPendulumPosition() const {
     return {std::sin(pendulum_.angle_) * pendulum_.length_,
             -std::cos(pendulum_.angle_) * pendulum_.length_};

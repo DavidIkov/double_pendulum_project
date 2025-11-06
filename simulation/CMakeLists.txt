@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.22)
 project(simulation LANGUAGES CXX)
 
 add_library(
@@ -16,3 +15,5 @@ target_include_directories(visualizer_single PRIVATE ${PROJECT_SOURCE_DIR})
 add_executable(visualizer_double visualizer/double.cpp)
 target_link_libraries(visualizer_double PRIVATE pendulum Qt6::Core Qt6::Widgets)
 target_include_directories(visualizer_double PRIVATE ${PROJECT_SOURCE_DIR})
+
+add_subdirectory(pendulum/python_export)

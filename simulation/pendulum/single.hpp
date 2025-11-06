@@ -10,6 +10,10 @@ template <>
 class Simulation<1> {
 public:
     Simulation(Pendulum const& pendulum, float gravity = 9.80665f);
+    Simulation(Simulation const&);
+    Simulation& operator=(Simulation const&) = delete;
+    Simulation(Simulation&&) noexcept;
+    Simulation& operator=(Simulation&&) noexcept = delete;
 
     mathcpp::Vector2F GetPendulumPosition() const;
     Pendulum const& GetPendulum() const;
