@@ -1,6 +1,8 @@
 
 #include "single.hpp"
 
+#include <numbers>
+
 mathcpp::Vector2F Simulation<1>::CalculateRK4(
     float const& t, const mathcpp::Vector2F& state,
     Simulation<1> const& simulation,
@@ -44,4 +46,14 @@ float Simulation<1>::GetMaxRadius() const { return pendulum_.length_; }
 void Simulation<1>::Step(float dt, mathcpp::Vector2F platform_acceleration) {
     mathcpp::Vector2F state = rk_.Step(dt, platform_acceleration);
     pendulum_.angle_ = state[0];
+
+    // normalize angle, keep it from 0 to 2*pi
+    if (pendulum_.angle_ > 0)
+        pendulum_.angle_ +=
+            std::numbers::pi * 2 *
+            (1 + static_cast<int32_t>(pendulum_.angle_ / std::numbers::pi / 2));
+    else if (pendulum_.angle_ < 0)
+        pendulum_.angle_ -=
+            std::numbers::pi * 2 *
+            static_cast<int32_t>(pendulum_.angle_ / std::numbers::pi / 2);
 }
