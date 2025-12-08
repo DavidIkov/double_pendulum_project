@@ -210,7 +210,7 @@ def policy(state, noise_object):
 
 std_dev = 0.1
 ou_noise = OUActionNoise(mean=np.zeros(
-    2), std_deviation=float(std_dev) * np.ones(2))
+    1), std_deviation=float(std_dev) * np.ones(1))
 
 actor_model = get_actor()
 critic_model = get_critic()

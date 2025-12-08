@@ -17,6 +17,8 @@ state, _ = env.reset()
 
 pg.init()
 
+font = pg.font.SysFont('Noto Mono', 30)
+
 window = pg.display.set_mode((800, 600))
 pg.display.set_caption("testing trained model")
 
@@ -27,7 +29,7 @@ while running:
             running = False
 
     window.fill((0, 0, 0))
-    action = loaded_model(tf.expand_dims(state, 0)).numpy().squeeze()
+    action = loaded_model(tf.expand_dims(state, 0)).numpy().squeeze(axis=0)
     state, reward, terminated, truncated, _ = env.step(action)
     if terminated or truncated:
         state, _ = env.reset()
@@ -55,6 +57,9 @@ while running:
 
     pg.draw.line(window, (0, 255, 0), [platform_pos[0], platform_pos[1]], [
                  pend_pos[0], pend_pos[1]], width=5)
+
+    text_surface = font.render("%.2f" % reward, False, (255, 255, 255))
+    window.blit(text_surface, (0, 0))
 
     pg.display.update()
 
