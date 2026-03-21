@@ -71,10 +71,15 @@ class SinglePendulumEnv(gym.Env):
 
         return self._get_obs(), {}
 
-    def _calculate_reward(self,obs:list) -> float:
+    def _calculate_reward(self, obs: list) -> float:
         return obs[2]
 
     def step(self, action: float):
+
+        # clamp action
+        action = np.clip(
+            action, self.action_space.low[0], self.action_space.high[0])
+
         p.setJointMotorControl2(bodyUniqueId=self._MODEL_ID,
                                 jointIndex=self._STICK_ID,
                                 controlMode=p.TORQUE_CONTROL,
@@ -93,8 +98,8 @@ class SinglePendulumEnv(gym.Env):
         if self.steps_counter > self.max_steps:
             truncated = True
         else:
-            stick_vel_too_big = np.abs(obs[0]) > 30
-            pend0_vel_too_big = np.abs(obs[3]) > 50
+            stick_vel_too_big = np.abs(obs[0]) > self.observation_space.high[0]
+            pend0_vel_too_big = np.abs(obs[3]) > self.observation_space.high[3]
             if stick_vel_too_big or pend0_vel_too_big:
                 print(stick_vel_too_big, pend0_vel_too_big)
                 terminated = True
