@@ -14,7 +14,7 @@ class SinglePendulumEnv(gym.Env):
         startPos = [0, 0, 1]
         startOrientation = p.getQuaternionFromEuler([0, 0, 0])
         self._MODEL_ID = p.loadURDF(
-            "model/single_pendulum.urdf", startPos, startOrientation)
+            "model/single/pendulum.urdf", startPos, startOrientation)
         p.resetDebugVisualizerCamera(
             cameraDistance=8, cameraYaw=50, cameraPitch=-30, cameraTargetPosition=[0, 0, 0.5])
 

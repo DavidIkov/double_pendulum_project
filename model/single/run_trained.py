@@ -1,7 +1,7 @@
 import numpy as np
 import time
 import keras
-from single_pendulum_env import SinglePendulumEnv
+from pendulum_env import SinglePendulumEnv
 
 # Create the environment (render=True to see the simulation)
 env = SinglePendulumEnv(True)

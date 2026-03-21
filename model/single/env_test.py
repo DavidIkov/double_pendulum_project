@@ -1,6 +1,6 @@
 
 import time
-from single_pendulum_env import SinglePendulumEnv
+from pendulum_env import SinglePendulumEnv
 
 env=SinglePendulumEnv(True)
 

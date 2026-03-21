@@ -1,4 +1,4 @@
-from single_pendulum_env import SinglePendulumEnv
+from pendulum_env import SinglePendulumEnv
 import numpy as np
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
