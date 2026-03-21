@@ -1,0 +1,15 @@
+
+import time
+from single_pendulum_env import SinglePendulumEnv
+
+env=SinglePendulumEnv(True)
+
+env.reset()
+
+while True:
+
+    _,reward,truncated,terminated,_=env.step(0)
+    print(reward)
+    if truncated or terminated:
+        env.reset()
+    time.sleep(1./240.)
