@@ -12,4 +12,3 @@ while True:
     print(reward)
     if truncated or terminated:
         env.reset()
-    time.sleep(1./240.)

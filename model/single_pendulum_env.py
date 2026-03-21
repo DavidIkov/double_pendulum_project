@@ -39,7 +39,10 @@ class SinglePendulumEnv(gym.Env):
             low=np.array([-30, -1, -1, -50]),
             high=np.array([30, 1, 1, 50]), shape=(4,))
 
-        self.max_steps = 10/(1/240)
+        self.simulation_dt = 1/60
+        # 10 seconds of simulation
+        self.max_steps = 10/self.simulation_dt
+        p.setTimeStep(self.simulation_dt)
 
     def _get_obs(self) -> list:
         _, stickVel, _, _ = p.getJointState(self._MODEL_ID, self._STICK_ID)
@@ -55,13 +58,19 @@ class SinglePendulumEnv(gym.Env):
     def reset(self, seed: int | None = None, options: dict[str, Any] | None = None) -> tuple[list, dict[str, Any]]:
         super().reset(seed=seed)
 
-        p.resetJointState(self._MODEL_ID, self._STICK_ID, 0, 0)
+        stick_angle = self.np_random.uniform(-np.pi, np.pi)
+        stick_vel = self.np_random.uniform(-2.0, 2.0)
+        p.resetJointState(self._MODEL_ID, self._STICK_ID,
+                          stick_angle, stick_vel)
         p.setJointMotorControl2(self._MODEL_ID,
                                 self._STICK_ID,
                                 p.VELOCITY_CONTROL,
                                 force=0)
 
-        p.resetJointState(self._MODEL_ID, self._PENDULUM_ID, 0, 0)
+        pend_angle = self.np_random.uniform(0, np.pi)
+        pend_vel = self.np_random.uniform(-5.0, 5.0)
+        p.resetJointState(self._MODEL_ID, self._PENDULUM_ID,
+                          pend_angle, pend_vel)
         p.setJointMotorControl2(self._MODEL_ID,
                                 self._PENDULUM_ID,
                                 p.VELOCITY_CONTROL,
@@ -72,13 +81,13 @@ class SinglePendulumEnv(gym.Env):
         return self._get_obs(), {}
 
     def _calculate_reward(self, obs: list) -> float:
-        return obs[2]
+        return obs[2]-obs[0]**2/5
 
-    def step(self, action: float):
+    def step(self, action: list):
 
         # clamp action
         action = np.clip(
-            action, self.action_space.low[0], self.action_space.high[0])
+            action[0], self.action_space.low[0], self.action_space.high[0])
 
         p.setJointMotorControl2(bodyUniqueId=self._MODEL_ID,
                                 jointIndex=self._STICK_ID,
@@ -106,3 +115,6 @@ class SinglePendulumEnv(gym.Env):
                 reward = -10
 
         return obs, reward, terminated, truncated, {}
+
+    def close(self):
+        self._client.disconnect()
