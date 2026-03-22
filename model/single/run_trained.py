@@ -13,7 +13,7 @@ upper_bound = env.action_space.high[0]
 lower_bound = env.action_space.low[0]
 
 # Load the trained actor model
-actor_model = keras.models.load_model('single_pend_actor.keras')
+actor_model = keras.models.load_model('single_pendulum_actor.keras')
 
 def get_action(state):
     # Convert state to tensor and add batch dimension

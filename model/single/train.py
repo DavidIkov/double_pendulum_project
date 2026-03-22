@@ -276,5 +276,5 @@ for ep in range(total_episodes):
     print("Episode * {} * Avg Reward is ==> {}".format(ep, avg_reward))
     avg_reward_list.append(avg_reward)
 
-actor_model.save('single_pend_actor.keras')
-critic_model.save('single_pend_critic.keras')
+actor_model.save('single_pendulum_actor.keras')
+critic_model.save('single_pendulum_critic.keras')
