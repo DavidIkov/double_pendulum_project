@@ -1,5 +1,7 @@
 import numpy as np
 import time
+import os
+os.environ["KERAS_BACKEND"] = "tensorflow"
 import keras
 from pendulum_env import SinglePendulumEnv
 
@@ -39,6 +41,6 @@ while True:
     print(reward,end="\r")
     total_reward += reward
     step += 1
-    if done or truncated:
+    if done:
         env.reset()
     time.sleep(env.simulation_dt)

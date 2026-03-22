@@ -1,5 +1,7 @@
 import numpy as np
 import time
+import os
+os.environ["KERAS_BACKEND"] = "tensorflow"
 import keras
 from pendulum_env import DoublePendulumEnv
 
