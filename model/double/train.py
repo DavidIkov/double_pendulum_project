@@ -1,4 +1,4 @@
-from pendulum_env import SinglePendulumEnv
+from pendulum_env import DoublePendulumEnv
 import numpy as np
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -8,7 +8,7 @@ import keras
 from keras import layers
 import tensorflow as tf
 
-env = SinglePendulumEnv(True)
+env = DoublePendulumEnv(True)
 
 num_states = env.observation_space.shape[0]
 print("Size of State Space ->  {}".format(num_states))
@@ -228,7 +228,7 @@ actor_lr = 0.001
 critic_optimizer = keras.optimizers.Adam(critic_lr)
 actor_optimizer = keras.optimizers.Adam(actor_lr)
 
-total_episodes = 100
+total_episodes = 1000
 # Discount factor for future rewards
 gamma = 0.99
 # Used to update target networks
@@ -276,5 +276,5 @@ for ep in range(total_episodes):
     print("Episode * {} * Avg Reward is ==> {}".format(ep, avg_reward))
     avg_reward_list.append(avg_reward)
 
-actor_model.save('single_pend_actor.keras')
-critic_model.save('single_pend_critic.keras')
+actor_model.save('double_pendulum_actor.keras')
+critic_model.save('double_pendulum_critic.keras')

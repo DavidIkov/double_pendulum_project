@@ -1,10 +1,10 @@
 import numpy as np
 import time
 import keras
-from pendulum_env import SinglePendulumEnv
+from pendulum_env import DoublePendulumEnv
 
 # Create the environment (render=True to see the simulation)
-env = SinglePendulumEnv(True)
+env = DoublePendulumEnv(True)
 
 # Get environment parameters (same as in training)
 num_states = env.observation_space.shape[0]
@@ -13,7 +13,8 @@ upper_bound = env.action_space.high[0]
 lower_bound = env.action_space.low[0]
 
 # Load the trained actor model
-actor_model = keras.models.load_model('single_pend_actor.keras')
+actor_model = keras.models.load_model('double_pendulum_actor.keras')
+
 
 def get_action(state):
     # Convert state to tensor and add batch dimension
@@ -26,6 +27,7 @@ def get_action(state):
     action = np.clip(action.numpy().squeeze(), lower_bound, upper_bound)
     return [float(action)]  # Environment expects a list with one element
 
+
 # Run an episode with the trained policy
 state, _ = env.reset()
 done = False
@@ -36,9 +38,9 @@ step = 0
 while True:
     action = get_action(state)
     state, reward, done, truncated, _ = env.step(action)
-    print(reward,end="\r")
+    print(reward, end="\r")
     total_reward += reward
     step += 1
-    if done or truncated:
+    if done:
         env.reset()
     time.sleep(env.simulation_dt)
